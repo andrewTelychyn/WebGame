@@ -1,7 +1,6 @@
-import { Vector } from "ts-matrix";
 import { Animal } from "./animal.model";
 
-const BUNNY_RADIUS = 50;
+const BUNNY_RADIUS = 30;
 const BUNNY_SPEED = 4;
 
 export class Bunny extends Animal {
@@ -9,28 +8,23 @@ export class Bunny extends Animal {
     public color: string = "blue";
     public maxSpeed: number = BUNNY_SPEED;
 
-    constructor(x: number, y: number, maxHeight: number, maxWidth: number) {
-        super(x, y, maxHeight, maxWidth);
+    constructor(
+        maxHeight: number,
+        maxWidth: number,
+        dieCallback: (id: number) => void
+    ) {
+        super(maxHeight, maxWidth, dieCallback);
     }
 
-    public override applyBehaviours(allAnimals: Animal[]): void {
-        let separate = this.separate(allAnimals, BUNNY_RADIUS);
+    public override applyBehaviours(allAnimals: Animal[], wolves: Animal[]): void {
+        let separateAll = this.separate(allAnimals, BUNNY_RADIUS);
+        let separateWolves = this.separate(wolves, BUNNY_RADIUS);
         let wander = this.wander();
         let edge = this.avoidEdges();
 
-        separate =  separate ? separate.scale(2): new Vector([0, 0]);
-        wander = wander.scale(0.2);
-
-        if (edge) {
-            edge = edge.scale(10);
-            this.applyForce(edge);
-        } else {
-            this.applyForce(wander);
-            this.applyForce(separate);
-            // console.log(wander.values);
-        }
-
-        // this.applyForce(edge);
-
+        this.applyForce(edge.scale(1.5));
+        this.applyForce(wander.scale(0.5));
+        this.applyForce(separateAll.scale(0.65));
+        this.applyForce(separateWolves.scale(1.25));
     }
 }
