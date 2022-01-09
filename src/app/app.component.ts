@@ -3,6 +3,7 @@ import { fromEvent } from 'rxjs';
 import { debounceTime } from 'rxjs/operators'
 import { DataService } from './services/data.service';
 import { DrawService } from './services/draw.service';
+import { ScoreService } from './services/score.service';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,11 @@ export class AppComponent implements AfterViewInit {
   
   public title = 'practice6';
 
-  constructor(private drawService: DrawService, private dataService: DataService) {
+  constructor(
+    private drawService: DrawService,
+    public dataService: DataService,
+    public scoreService: ScoreService,
+  ) {
     this.initKeyboardEvents();
   }
 
@@ -30,8 +35,13 @@ export class AppComponent implements AfterViewInit {
     })
   }
 
-  public addAnimal(): void {
+  public initData(): void {
+    this.dataService.emptyData();
     this.dataService.initData();
+  }
+
+  public addHunter(): void {
+    this.dataService.addHunter();
   }
 
   public addWolf() {

@@ -1,23 +1,24 @@
 import { Vector } from "ts-matrix";
 import { Animal } from "./animal.model";
 import { Bullet } from "./bullet.model";
-
-const MAX_SPEED = 4; 
-const BULLETS = 10;
+import { Config } from "../interfaces/config.interface";
 
 export class Hunter extends Animal {
     public type: string = 'Hunter';
     public color: string = 'black'; 
 
-    private bullets: number = BULLETS;
     public bulletsArray: Bullet[] = [];
+    public bulletRemain: number;
 
     constructor(
-        maxHeight: number,
-        maxWidth: number
+        private config: Config,
+        private shootCallback: () => void,
+        dieCallback: (id: number, killerId?: number) => void
     ) {
-        super(maxHeight, maxWidth, () => {});
-        this.maxSpeed = MAX_SPEED;
+        super(config, dieCallback);
+        this.maxSpeed = config.hunterSpeed;
+        this.bulletRemain = config.bulletAmount;
+
     }
 
     public move(coord: [number, number]): void {
@@ -26,20 +27,24 @@ export class Hunter extends Animal {
         if (x < 0 || y < 0 || x > this.maxWidth || y > this.maxHeight) {
             return this.die();
         }
-        // console.log(coord);
-        // this.acceleration = this.acceleration.add(new Vector(coord));
 
-        let desired = new Vector(coord).scale(1)//.substract(this.velocity);
-        // let steer = this.limitVector(desired, this.maxForce);
+        let desired = new Vector(coord).scale(1);
         this.applyForce(desired);
     }
 
     public shoot(direct: [number, number]): void {
-        if (this.bullets - 1 < 0) return;
-        this.bullets--;
+        if (this.bulletRemain - 1 < 0) return;
+        this.bulletRemain--;
+        this.shootCallback();
 
         const [x, y] = this.location.values;
-        const bullet = new Bullet([x, y], direct, this.removeBullet.bind(this)); 
+        const bullet = new Bullet(
+            [x, y],
+            direct,
+            this.config,
+            this.id,
+            this.removeBullet.bind(this)
+        ); 
         this.bulletsArray.push(bullet);
     }
 

@@ -1,10 +1,31 @@
 <div class="wrapper">
     <div class="container">
         <canvas #canvas></canvas>
-        <button (click)="addAnimal()">CLICK ME PLEAE</button>
+        <button (click)="initData()">INIT</button>
         <button (click)="addWolf()">WOLF</button>
         <button (click)="addDeer()">DEER</button>
         <button (click)="addBunny()">BUNNY</button>
+        <button (click)="addHunter()">HUNTER</button>
         <button (click)="stop()">STOP</button>
+    </div>
+    <div class="bullets-wrapper">
+        <ul class="bullet">
+            <li *ngFor="let bullet of dataService.bulletsViewArray; let i = index" [style.left]="i * 17 + 'px'">
+                <img src="../assets/img/bullet.png" alt="" [class.empty]="!bullet">
+            </li>
+        </ul>
+    </div>
+    <div class="scores-wrapper" *ngIf="(scoreService.scoreStorage | async) as scores">
+        <ul class="scores">
+            <li *ngFor="let item of scores | keyvalue; let i = index">
+                <span class="index"[innerText]="i + 1 + '.'" ></span>
+                <span class="name" [innerText]="item.value.isHunter ? 'HUNTER': 'WOLF'"></span>
+                <span class="score" [innerText]="item.value.score"></span>
+            </li>
+        </ul>
+    </div>
+    <div class="endgame-wrapper" *ngIf="dataService.isStopGame">
+        <h1>Game is Over</h1>
+        <h3 (click)="initData()">Start Again</h3>
     </div>
 </div>

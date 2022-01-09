@@ -4,6 +4,11 @@
     max-width: 100%;
     background-color: #EDF2F4;
     padding: 10vh 0;
+    position: relative;
+}
+
+ul {
+    list-style: none;
 }
 
 .container {
@@ -11,7 +16,7 @@
     height: 60vh;
     width: 60vw;
     background-color: #8D99AE;
-    padding: 50px;
+    padding: 50px 50px 60px;
 }
 
 canvas {
@@ -23,5 +28,75 @@ canvas {
 }
 
 button {
-    margin-top: 20px;
+    margin: 20px 2px 0;
+    padding: 2px 5px;
+}
+
+.bullets-wrapper {
+    position: absolute;
+    top: 80px;
+    left: 20px;
+    border-bottom: 2px solid #D90429;
+}
+
+.bullet {
+    display: flex;
+    flex-direction: row;
+
+    li {
+        position: absolute;
+        top: 0;
+    }
+
+    img {
+        width: 80px;
+        height: auto;
+        transform: rotate(-45deg);
+
+        &.empty {
+            opacity: 0.5;
+        }
+    }
+}
+
+.scores-wrapper {
+    position: absolute;
+    right: 20px;
+    top: 70px;
+
+    .scores {
+        width: 150px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        margin: 6px 0;
+        padding: 10px 15px;
+        color: white;
+        background-color: #2B2D42;
+    }
+}
+
+.endgame-wrapper {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    bottom: 100px;
+    // margin: 40px auto;
+    text-align: center;
+    
+    h1 {
+        padding: 10px 25px;
+        text-transform: uppercase;
+        color: white;
+        background-color: #2B2D42;
+    }
+    
+    h3 {
+        cursor: pointer;
+        margin-top: 10px;
+    }
 }

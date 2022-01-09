@@ -1,30 +1,35 @@
 import { Vector } from "ts-matrix";
+import { Config } from "../interfaces/config.interface";
 import { Animal } from "./animal.model";
-
-const WOLF_RADIUS = 30;
-const KILL_RADIUS = 5;
-const WOLF_SPEED = 3;
-const HUNGER_DURATION = 200;
-
-const KILLING_INCREMENT = 0.25;
-const CANNIBALISM_COEF = 1/5;
-const NOHARM_COEF = 2/3;
-const NORUN_COEF = 3/4;
 
 export class Wolf extends Animal {
     public type: string = "Wolf";
     public color: string = "red"
-    public maxSpeed: number = WOLF_SPEED;
 
-    private hungerLimit: number = HUNGER_DURATION;
-    private killRadius: number = KILL_RADIUS;
+    private hungerLimit: number;
+    private killRadius: number;
+
+    private wolfHuntRadius: number;
+    private wolfHungerLimit: number;
+    private wolfKillingIncrement: number;
+    private wolfCannibalismCoef: number;
+    private wolfNoHarmCoef: number;
+    private wolfNoHuntCoef: number;
 
     constructor(
-        maxHeight: number,
-        maxWidth: number,
-        dieCallback: (id: number) => void,
+        config: Config,
+        dieCallback: (id: number, killerId?: number) => void,
     ) {
-        super(maxHeight, maxWidth, dieCallback);
+        super(config, dieCallback);
+
+        this.hungerLimit = config.wolfHungerLimit;
+        this.wolfHuntRadius = config.wolfHuntRadius;
+        this.wolfHungerLimit = config.wolfHungerLimit;
+        this.wolfKillingIncrement = config.wolfKillingIncrement;
+        this.wolfCannibalismCoef = config.wolfCannibalismCoef;
+        this.wolfNoHarmCoef = config.wolfNoHarmCoef;
+        this.wolfNoHuntCoef = config.wolfNoHuntCoef;
+        this.killRadius = config.wolfKillRadius;
     }
 
     public addHunger(): void {
@@ -33,7 +38,7 @@ export class Wolf extends Animal {
     }
 
     public override applyBehaviours(allAnimals: Animal[], greenAnimals: Animal[]): void {
-        let food = this.hunt(greenAnimals, WOLF_RADIUS, allAnimals);
+        let food = this.hunt(greenAnimals, this.wolfHuntRadius, allAnimals);
         let wander = this.wander();
         let edge = this.avoidEdges();
 
@@ -43,7 +48,7 @@ export class Wolf extends Animal {
     }
 
    private hunt(animals: Animal[], huntRadius: number, allAnimals: Animal[]): Vector {
-        if (this.hungerLimit > HUNGER_DURATION * NORUN_COEF) 
+        if (this.hungerLimit > this.wolfHungerLimit * this.wolfNoHuntCoef) 
             return new Vector([0, 0]);
 
         const huntdist = huntRadius * 2;
@@ -55,7 +60,7 @@ export class Wolf extends Animal {
 
         // if a wolf is very hungry it might start hunting other wolves for survival
         let huntingAnimals = animals;
-        if (this.hungerLimit < HUNGER_DURATION * CANNIBALISM_COEF) 
+        if (this.hungerLimit < this.wolfHungerLimit * this.wolfCannibalismCoef) 
             huntingAnimals = allAnimals.filter(w => this.id !== w.id);
 
         for (let animal of huntingAnimals) {
@@ -73,10 +78,10 @@ export class Wolf extends Animal {
         }
 
         // also checking if wolf is full 
-        if (min && min < this.killRadius && this.hungerLimit < HUNGER_DURATION * NOHARM_COEF) {
-            closestAnimal?.die();
-            this.killRadius += KILLING_INCREMENT;
-            this.hungerLimit = HUNGER_DURATION;
+        if (min && min < this.killRadius && this.hungerLimit < this.wolfHungerLimit * this.wolfNoHarmCoef) {
+            closestAnimal?.die(this.id);
+            this.killRadius += this.wolfKillingIncrement;
+            this.hungerLimit = this.wolfHungerLimit;
 
             count = 0;
         }

@@ -1,8 +1,5 @@
 import { Vector } from 'ts-matrix';
-
-const MAX_SPEED = 4;
-const MAX_FORCE = 1;
-const RANGE_VALUE = 25;
+import { Config } from '../interfaces/config.interface';
 
 export class Animal {
     public type: string = "Animal";
@@ -15,20 +12,27 @@ export class Animal {
 
     public maxSpeed: number;
     protected maxForce: number;
+    private rangeValue: number;
+
+    protected maxHeight: number;
+    protected maxWidth: number;
 
     constructor(
-        protected maxHeight: number,
-        protected maxWidth: number,
-        private dieCallback: (id: number) => void
+        { maxHeight, maxWidth, animalSpeed, animalForce, animalAvoidRange }: Config,
+        private dieCallback: (id: number, killerId?: number) => void
     ) {
+        this.maxHeight = maxHeight || 0;
+        this.maxWidth = maxWidth || 0;
+
         this.id = Date.now() + Math.round(Math.random() * 100);
         const [x, y] = [Math.random() * this.maxWidth, Math.random() * this.maxHeight];
         this.location = new Vector([x, y]);
         this.velocity = new Vector([0, 0]);
         this.acceleration = new Vector([0, 0]);
 
-        this.maxSpeed = MAX_SPEED;
-        this.maxForce = MAX_FORCE;
+        this.maxSpeed = animalSpeed;
+        this.maxForce = animalForce;
+        this.rangeValue = animalAvoidRange;
     }
 
     public update(): void {
@@ -38,9 +42,9 @@ export class Animal {
         this.acceleration = new Vector([0, 0]);
     }
 
-    public die(): void {
+    public die(killerId?: number): void {
         console.log('animal died!');
-        this.dieCallback(this.id);
+        this.dieCallback(this.id, killerId);
     }
 
     protected applyForce(force: Vector): void {
@@ -65,20 +69,6 @@ export class Animal {
         // COMMON METHOD
     }
 
-    // public applyAnimalBehavior(target: Vector, animals: Animal[] = []) {
-    //     let force1 = this.wander();
-    //     let avoid = this.avoidEdges();
-    //     let cohension = this.cohension(animals, this.maxWidth / 10);
-    //     let separate = this.separate(animals, 2);
-    //     let hide = this.hide(target, this.maxWidth / 10);
-
-    //     this.applyForce(hide.scale(1.5));
-    //     this.applyForce(avoid.scale(1.5));
-    //     this.applyForce(force1.scale(0.5));
-    //     this.applyForce(separate.scale(1));
-    //     this.applyForce(cohension);
-    // }
-
     protected hide(target: Vector | null, radius: number = 0): Vector {
         const vector = this.seek(target);
         return vector?.negate();
@@ -94,11 +84,11 @@ export class Animal {
             return new Vector([0, 0]);
         }
 
-        if (x < RANGE_VALUE) desx = this.maxSpeed;
-        else if (x > (this.maxWidth - RANGE_VALUE)) desx = -this.maxSpeed;
+        if (x < this.rangeValue) desx = this.maxSpeed;
+        else if (x > (this.maxWidth - this.rangeValue)) desx = -this.maxSpeed;
 
-        if (y < RANGE_VALUE) desy = this.maxSpeed;
-        else if (y > (this.maxHeight - RANGE_VALUE)) desy = -this.maxSpeed;
+        if (y < this.rangeValue) desy = this.maxSpeed;
+        else if (y > (this.maxHeight - this.rangeValue)) desy = -this.maxSpeed;
 
         if (!desx && !desy) return new Vector([0, 0]);
 
